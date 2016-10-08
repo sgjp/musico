@@ -9,6 +9,7 @@ import (
 func StartServer(){
 	router := gin.Default()
 
+	router.GET("/test",test)
 	router.POST("/auth/login", login)
 
 	router.Run()
@@ -27,4 +28,9 @@ func login (c *gin.Context){
 	}
 
 
+}
+
+func test (c *gin.Context){
+	content := gin.H{"Status":"OK"}
+	c.JSON(200,content)
 }
