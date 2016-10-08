@@ -1,8 +1,7 @@
 package main
 
-import "fmt"
+import "github.com/sgjp/musico/server"
 
 func main() {
-	e:="asd"
-	fmt.Printf("hello %v",e)
+	server.StartServer()
 }
