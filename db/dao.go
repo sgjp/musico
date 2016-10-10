@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/lib/pq"
 	"github.com/sgjp/musico/util"
+	"strconv"
 )
 
 func GetUser(username, password string) bool {
@@ -52,6 +53,19 @@ func AddReview(comment string, rateQuality, ratePunctuality, rateFlexibility, ra
 	return id
 
 }
+
+func AddComment(comment string, cType, userId, bandId int) int {
+
+	db := getConnection()
+
+	var id int
+
+	err := db.QueryRow("INSERT INTO comments(band_id, user_id, type, comment) VALUES ($1,$2,$3,$4) returning id;",  bandId, userId, cType, comment).Scan(&id)
+	util.CheckErr(err)
+	return id
+
+}
+
 func GetAllBands() []Band {
 	bands := make([]Band, 0)
 	db := getConnection()
@@ -69,13 +83,14 @@ func GetAllBands() []Band {
 		var location string
 		var avgPrice string
 		reviews := make([]Review, 0)
+		comments := make([]Comment, 0)
 
 		err = rows.Scan(&id, &name, &genre, &youtube, &facebook, &requirements, &location, &avgPrice)
 
-		rows, err := db.Query("SELECT id, comment, rate_quality, rate_punctuality, rate_flexibility, rate_enthusiasm, rate_similarity, rate FROM reviews WHERE band_id=$1;", id)
+		rowsR, err := db.Query("SELECT id, comment, rate_quality, rate_punctuality, rate_flexibility, rate_enthusiasm, rate_similarity, rate FROM reviews WHERE band_id=$1;", id)
 
 		//Get the reviews
-		for rows.Next() {
+		for rowsR.Next() {
 			var id string
 			var comment string
 			var rateQuality string
@@ -84,13 +99,26 @@ func GetAllBands() []Band {
 			var rateEnthusiasm string
 			var rateSimilarity string
 			var rate string
-			err = rows.Scan(&id, &comment, &rateQuality, &ratePunctuality, &rateFlexibility, &rateEnthusiasm, &rateSimilarity, &rate)
+			err = rowsR.Scan(&id, &comment, &rateQuality, &ratePunctuality, &rateFlexibility, &rateEnthusiasm, &rateSimilarity, &rate)
 			review := Review{id, comment, rateQuality, ratePunctuality, rateFlexibility, rateEnthusiasm, rateSimilarity, rate}
 			reviews = append(reviews, review)
 		}
 		util.CheckErr(err)
 
-		band := Band{id, name, genre, youtube, facebook, requirements, location, avgPrice, reviews}
+		rowsC, err := db.Query("SELECT id, comment, type FROM comments WHERE band_id=$1;",id)
+
+		for rowsC.Next(){
+			var id string
+			var comment string
+			var cType string
+			err = rowsC.Scan(&id, &comment, &cType)
+			cTypeI,_ := strconv.Atoi(cType)
+			comm := Comment{id,comment,cTypeI}
+			comments = append(comments, comm)
+		}
+
+		avgPriceI,_:=strconv.Atoi(avgPrice)
+		band := Band{id, name, genre, youtube, facebook, requirements, location, avgPriceI, reviews, comments}
 		bands = append(bands, band)
 
 	}

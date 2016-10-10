@@ -19,8 +19,11 @@ func StartServer() {
 
 	router.GET("/bands", getAllBands)
 
+	router.GET("/bands/search", searchBands)
+
 	router.POST("/band/:id/review", addReview)
 
+	router.POST("/band/:id/comment", addComment)
 
 
 	router.GET("/info", func(c *gin.Context) {
@@ -77,6 +80,13 @@ func getAllBands(c *gin.Context) {
 
 }
 
+func searchBands(c *gin.Context){
+	minPrice := c.PostForm("minPrice")
+	maxPrice := c.PostForm("maxPrice")
+	location := c.PostForm("location")
+
+}
+
 func addReview(c *gin.Context) {
 	bandId,err := strconv.Atoi(c.Param("id"))
 	util.CheckErr(err)
@@ -98,6 +108,26 @@ func addReview(c *gin.Context) {
 	util.CheckErr(err)
 
 	id := db.AddReview(comment,rateQuality, ratePunctuality, rateFlexibility, rateEnthusiasm, rateSimilarity, rate, userId, bandId)
+
+	if id > 0 {
+		content := gin.H{"id": id}
+		c.JSON(200, content)
+	} else {
+		c.Status(500)
+	}
+}
+
+func addComment(c *gin.Context) {
+	bandId,err := strconv.Atoi(c.Param("id"))
+	util.CheckErr(err)
+
+	comment := c.PostForm("comment")
+	cType ,err := strconv.Atoi(c.PostForm("type"))
+	util.CheckErr(err)
+	userId,err := strconv.Atoi(c.PostForm("userId"))
+	util.CheckErr(err)
+
+	id := db.AddComment(comment,cType, userId, bandId)
 
 	if id > 0 {
 		content := gin.H{"id": id}

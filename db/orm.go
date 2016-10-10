@@ -14,8 +14,9 @@ type Band struct {
 	Facebook     string
 	Requirements string
 	Location     string
-	AvgPrice     string
-	Reviews	     []Review
+	AvgPrice     int
+	Reviews      []Review
+	Comments     []Comment
 }
 
 type Review struct {
@@ -27,4 +28,10 @@ type Review struct {
 	RateEnthusiasm  string
 	RateSimilarity  string
 	Rate            string
+}
+
+type Comment struct {
+	Id      string
+	Comment string
+	Type    int
 }
