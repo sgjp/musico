@@ -21,6 +21,13 @@ func StartServer() {
 
 	router.POST("/band/:id/review", addReview)
 
+
+
+	router.GET("/info", func(c *gin.Context) {
+		c.JSON(200, router.Routes())
+	})
+
+
 	router.Run()
 }
 
