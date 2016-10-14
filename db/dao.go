@@ -7,6 +7,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/sgjp/musico/util"
 	"strconv"
+	"time"
 )
 
 func GetUser(username, password string) bool {
@@ -60,7 +61,7 @@ func AddComment(comment string, cType, userId, bandId int) int {
 
 	var id int
 
-	err := db.QueryRow("INSERT INTO comments(band_id, user_id, type, comment) VALUES ($1,$2,$3,$4) returning id;",  bandId, userId, cType, comment).Scan(&id)
+	err := db.QueryRow("INSERT INTO comments(band_id, user_id, type, comment) VALUES ($1,$2,$3,$4) returning id;", bandId, userId, cType, comment).Scan(&id)
 	util.CheckErr(err)
 	return id
 
@@ -84,6 +85,7 @@ func GetAllBands() []Band {
 		var avgPrice string
 		reviews := make([]Review, 0)
 		comments := make([]Comment, 0)
+		bookings := make([]Booking, 0)
 
 		err = rows.Scan(&id, &name, &genre, &youtube, &facebook, &requirements, &location, &avgPrice)
 
@@ -105,26 +107,60 @@ func GetAllBands() []Band {
 		}
 		util.CheckErr(err)
 
-		rowsC, err := db.Query("SELECT id, comment, type FROM comments WHERE band_id=$1;",id)
+		rowsC, err := db.Query("SELECT id, comment, type FROM comments WHERE band_id=$1;", id)
 
-		for rowsC.Next(){
+		//Get the comments
+		for rowsC.Next() {
 			var id string
 			var comment string
 			var cType string
 			err = rowsC.Scan(&id, &comment, &cType)
-			cTypeI,_ := strconv.Atoi(cType)
-			comm := Comment{id,comment,cTypeI}
+			cTypeI, _ := strconv.Atoi(cType)
+			comm := Comment{id, comment, cTypeI}
 			comments = append(comments, comm)
 		}
 
-		avgPriceI,_:=strconv.Atoi(avgPrice)
-		band := Band{id, name, genre, youtube, facebook, requirements, location, avgPriceI, reviews, comments}
+		avgPriceI, _ := strconv.Atoi(avgPrice)
+
+		rowsB, err := db.Query("SELECT id, description, date FROM bookings WHERE band_id=$1", id)
+
+		//Get the bookings
+		for rowsB.Next() {
+			var id string
+			var description string
+			var date time.Time
+			err = rowsB.Scan(&id, &description, &date)
+			layout := "2006-01-02"
+			dateT, _ := time.Parse(layout, date.Format(layout))
+			booking := Booking{id, description, dateT}
+			bookings = append(bookings, booking)
+		}
+
+		band := Band{id, name, genre, youtube, facebook, requirements, location, avgPriceI, reviews, comments, bookings, 5.0}
+		band.AvgRate = band.GetAvgRate()
 		bands = append(bands, band)
 
 	}
 
 	return bands
 
+}
+
+func AddBooking(description ,date, bandIdS string) int{
+
+	bandId, err := strconv.Atoi(bandIdS)
+	util.CheckErr(err)
+
+	layout := "2006-01-02"
+	dateD, _ := time.Parse(layout, date)
+
+
+	db := getConnection()
+	var id int
+	err = db.QueryRow("INSERT INTO bookings(description, date, band_id) VALUES ($1, $2, $3) returning id;", description, dateD, bandId).Scan(&id)
+	util.CheckErr(err)
+
+	return id
 }
 
 func GetReviews() {
