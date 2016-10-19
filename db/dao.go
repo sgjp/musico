@@ -10,24 +10,24 @@ import (
 	"time"
 )
 
-func GetUser(username, password string) bool {
+func GetUser(username, password string) int {
 
 	db := getConnection()
 	var id int
 	var userName string
 	var pass string
-	err := db.QueryRow("SELECT * FROM users WHERE username = $1 and password=$2", username, password).Scan(&id, &username, &pass)
+	err := db.QueryRow("SELECT id FROM users WHERE username = $1 and password=$2", username, password).Scan(&id)
 
 	switch {
 	case err == sql.ErrNoRows:
-		return false
+		return -1
 	case err != nil:
 		log.Fatal(err)
-		return false
+		return -1
 	default:
 		user := User{id, userName, pass}
 		fmt.Printf("User is %v logged in\n", user.Username)
-		return true
+		return id
 	}
 }
 

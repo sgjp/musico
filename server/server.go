@@ -41,8 +41,8 @@ func login(c *gin.Context) {
 	password := c.PostForm("password")
 
 	result := db.GetUser(userName, password)
-	if result {
-		content := gin.H{"userName": userName}
+	if result>=0 {
+		content := gin.H{"id": result}
 		c.JSON(200, content)
 	} else {
 		c.Status(404)
