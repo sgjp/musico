@@ -45,6 +45,7 @@ func login(c *gin.Context) {
 		content := gin.H{"id": result}
 		c.JSON(200, content)
 	} else {
+		log.Printf("User %v and pass%v dont exist",userName,password)
 		c.Status(404)
 	}
 
@@ -65,6 +66,7 @@ func addBand(c *gin.Context) {
 		content := gin.H{"id": id}
 		c.JSON(200, content)
 	} else {
+		log.Printf("Band %v couldnt be added",name)
 		c.Status(500)
 	}
 
