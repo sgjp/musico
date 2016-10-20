@@ -37,7 +37,7 @@ func StartServer() {
 }
 
 func login(c *gin.Context) {
-	userName := c.PostForm("userName")
+	userName := c.PostForm("username")
 	password := c.PostForm("password")
 
 	result := db.GetUser(userName, password)
@@ -45,7 +45,7 @@ func login(c *gin.Context) {
 		content := gin.H{"id": result}
 		c.JSON(200, content)
 	} else {
-		log.Printf("User %v and pass%v dont exist",userName,password)
+		log.Printf("User %v and pass %v dont exist",userName,password)
 		c.Status(404)
 	}
 

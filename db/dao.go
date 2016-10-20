@@ -26,7 +26,7 @@ func GetUser(username, password string) int {
 		return -1
 	default:
 		user := User{id, userName, pass}
-		fmt.Printf("User is %v logged in\n", user.Username)
+		fmt.Printf("User %v is logged in\n", user.Username)
 		return id
 	}
 }
