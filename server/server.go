@@ -19,7 +19,10 @@ func StartServer() {
 
 	router.POST("/band", addBand)
 
+	router.GET("/band/name", getBandByName)
+
 	router.GET("/bands", getAllBands)
+
 
 	router.GET("/bands/search", searchBands)
 
@@ -46,6 +49,21 @@ func login(c *gin.Context) {
 		c.JSON(200, content)
 	} else {
 		log.Printf("User %v and pass %v dont exist",userName,password)
+		c.Status(404)
+	}
+
+}
+
+func getBandByName(c *gin.Context) {
+	name := c.Query("name")
+
+	result := db.GetBandByName(name)
+
+	if result.Id>0 {
+		content := gin.H{"id": result}
+		c.JSON(200, content)
+	} else {
+		log.Printf("Band by name %v doesn't exist",name)
 		c.Status(404)
 	}
 
