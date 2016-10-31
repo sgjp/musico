@@ -17,6 +17,8 @@ func StartServer() {
 
 	router.POST("/auth/login", login)
 
+	router.GET("/user/top", getTopUsers);
+
 	router.POST("/band", addBand)
 
 	router.GET("/band/name", getBandByName)
@@ -37,6 +39,18 @@ func StartServer() {
 	})
 
 	router.Run()
+}
+
+func getTopUsers(c *gin.Context) {
+
+
+	result := db.GetTopUsers()
+	if len(result)>=0 {
+		c.JSON(200, result)
+	} else {
+		c.Status(404)
+	}
+
 }
 
 func login(c *gin.Context) {

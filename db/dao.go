@@ -11,6 +11,28 @@ import (
 	"strings"
 )
 
+func GetTopUsers() []TopUser{
+	topUsers := make ([]TopUser,0)
+
+	db := getConnection()
+	defer db.Close()
+
+	rows, err := db.Query("SELECT b.user_id as id, u.username, count(b.user_id) as bookings FROM bookings b, users u WHERE b.user_id=u.id GROUP BY  b.user_id, u.username;")
+	util.CheckErr(err)
+
+	for rows.Next() {
+		var id int
+		var userName string
+		var bookings int
+		err = rows.Scan(&id, &userName, &bookings)
+
+		topUser := TopUser{id, userName, bookings}
+		topUsers = append(topUsers,topUser)
+	}
+
+	return topUsers
+
+}
 func GetUser(username, password string) int {
 
 	db := getConnection()

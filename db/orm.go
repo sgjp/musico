@@ -11,6 +11,12 @@ type User struct {
 	Password string
 }
 
+type TopUser struct {
+	Id       int
+	Username string
+	Bookings int
+}
+
 type Band struct {
 	Id           int
 	Name         string
