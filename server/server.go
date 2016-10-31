@@ -60,8 +60,8 @@ func getBandByName(c *gin.Context) {
 	result := db.GetBandByName(name)
 
 	if result.Id>0 {
-		content := gin.H{"id": result}
-		c.JSON(200, content)
+		//content := gin.H{result}
+		c.JSON(200, result)
 	} else {
 		log.Printf("Band by name %v doesn't exist",name)
 		c.Status(404)
