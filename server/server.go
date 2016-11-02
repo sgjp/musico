@@ -123,6 +123,7 @@ func searchBands(c *gin.Context) {
 	genre := c.Query("genre")
 	minAvgRate := c.DefaultQuery("minRate", "0")
 	availableDate := c.Query("availableDate")
+	name := c.Query("name")
 
 	bands := db.GetAllBands()
 	bandsFiltered := make([]db.Band, 0)
@@ -141,7 +142,12 @@ func searchBands(c *gin.Context) {
 				if minAvgRateF == 0.0 || avgRate >= minAvgRateF {
 					if bands[i].IsAvailable(availableDate) {
 						if genre == "" || strings.ToLower(bands[i].Genre) == strings.ToLower(genre) {
-							bandsFiltered = append(bandsFiltered, bands[i])
+							if name==""{
+								bandsFiltered = append(bandsFiltered, bands[i])
+							}else if strings.Contains(strings.ToLower(bands[i].Name),strings.ToLower(name)){
+								bandsFiltered = append(bandsFiltered, bands[i])
+							}
+
 						}
 					}
 				}
