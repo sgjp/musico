@@ -248,9 +248,12 @@ func GetAllBands() []Band {
 
 }
 
-func AddBooking(description, date, bandIdS string) int {
+func AddBooking(description, date, bandIdS, userIdS string) int {
 
 	bandId, err := strconv.Atoi(bandIdS)
+	util.CheckErr(err)
+
+	userId, err := strconv.Atoi(userIdS)
 	util.CheckErr(err)
 
 	layout := "2006-01-02"
@@ -259,7 +262,7 @@ func AddBooking(description, date, bandIdS string) int {
 	db := getConnection()
 	defer db.Close()
 	var id int
-	err = db.QueryRow("INSERT INTO bookings(description, date, band_id) VALUES ($1, $2, $3) returning id;", description, dateD, bandId).Scan(&id)
+	err = db.QueryRow("INSERT INTO bookings(description, date, band_id, user_id) VALUES ($1, $2, $3, $4) returning id;", description, dateD, bandId, userId).Scan(&id)
 	util.CheckErr(err)
 
 	return id

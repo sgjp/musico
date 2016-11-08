@@ -221,8 +221,9 @@ func addBooking(c *gin.Context) {
 
 	description := c.PostForm("description")
 	date := c.PostForm("date")
+	userId :=  c.PostForm("userId")
 
-	id := db.AddBooking(description, date, bandId)
+	id := db.AddBooking(description, date, bandId, userId)
 
 	if id > 0 {
 		content := gin.H{"id": id}
